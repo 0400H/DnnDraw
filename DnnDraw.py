@@ -12,8 +12,9 @@ class GraphViz (object):
         self.graph[graph_name].view()
         return None
 
-    def render(self, graph_name, out_format, file_path):
-        self.graph[graph_name].render(format=out_format, filepath=file_path)
+    def render(self, graph_name, out_format):
+        self.graph[graph_name].format = out_format
+        self.graph[graph_name].render()
         return None
 
     def save_resource(self, graph_name, file_path):
@@ -24,14 +25,14 @@ class GraphViz (object):
         self.graph[graph_name].draw(file_path)
         return None
 
-    def add_graph(self, graph_name, directed=False, graph_size='8,5', node_color='lightblue2', graph_style='filled'):
+    def add_graph(self, graph_name, directed=False, graph_size='8,5', node_color='lightblue2', graph_style='filled', out_format='pdf'):
         if graph_name in self.graph:
             print('graph ', graph_name, ' already exists!')
             return False
         if directed == False:
-            self.graph[graph_name] = gz.Graph(graph_name)
+            self.graph[graph_name] = gz.Graph(graph_name, format=out_format)
         else:
-            self.graph[graph_name] = gz.Digraph(graph_name)
+            self.graph[graph_name] = gz.Digraph(graph_name, format=out_format)
         if node_color != None:
             self.graph[graph_name].node_attr.update(color=node_color, shape= 'record', style=graph_style)
         self.graph[graph_name].attr(size=graph_size)
@@ -56,10 +57,10 @@ class GraphViz (object):
 pass
 
 class DNN (GraphViz):
-    def __init__(self, name, size):
+    def __init__(self, name, size, out_format='svg'):
         GraphViz.__init__(self)
         self._dnn_name = name
-        self.add_graph(self._dnn_name, True, size, 'lightblue2', 'filled')
+        self.add_graph(self._dnn_name, True, size, 'lightblue2', 'filled', out_format)
         return None
 
     def info_format(self, info_dict):
@@ -80,8 +81,8 @@ class DNN (GraphViz):
     def show(self):
         return self.view(self._dnn_name)
 
-    def svg(self):
-        return self.render(self._dnn_name, 'svg', self._dnn_name+'.gv')
+    def save(self, out_format):
+        return self.render(self._dnn_name, out_format)
 
 pass
 
@@ -110,7 +111,7 @@ def Add_InceptionModul3D(dnn_class, in_name, info_list):
 
 if __name__ == '__main__':
     project = 'I3D_Pology'
-    nn = DNN(project, '50,100')
+    nn = DNN(project, '50,100', 'svg')
 
     nn.add_layer([], {'name': 'input', 'shape': r'[32, 3, 64, 224, 224]'})
     nn.add_layer(['input'], {'name': 'Conv3d_1a_7x7', 'type': 'Unit3D', 'channel': r'[3, 64]', 'kernel': r'[7, 7, 7]', 'stride': r'[2, 2, 2]', 'padding': r'[3, 3, 3]', 'normal, relu': 'True'})
@@ -134,4 +135,4 @@ if __name__ == '__main__':
     nn.add_layer(['Dropout'], {'name': 'Logits', 'type': 'Unit3D', 'channel': r'[%d, %d]'%(384+384+128+128, 101), 'kernel': r'[1, 1, 1]', 'stride': r'[1, 1, 1]', 'padding': r'0', 'normal, relu': 'False'})
 
     nn.show()
-    # nn.svg()
+    nn.save('pdf')

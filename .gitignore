@@ -1,0 +1,10 @@
+*.pyc
+*.log
+*.pdf
+*.gv
+*.png
+*.svg
+temp*
+.idea
+.vscode
+__pycache__

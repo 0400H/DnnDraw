@@ -6,10 +6,12 @@ class DnnDraw (GraphViz):
     def __init__(self, name, size, out_format='svg'):
         GraphViz.__init__(self)
         self._dnn_name = name
+        self.info_list = []
         self.add_graph(self._dnn_name, True, size, 'lightblue2', 'filled', out_format)
         return None
 
     def info_format(self, info_dict):
+        self.info_list.append(info_dict)
         key_info = r'{'
         value_info = r'{'
         length = len(info_dict)

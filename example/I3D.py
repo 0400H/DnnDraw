@@ -11,21 +11,21 @@ import dnndraw
 def Add_InceptionModul3D(in_layers, info_dict):
     layer_name = info_dict['name']
     layer_pad = info_dict['padding']
-    layer_param = info_dict['param']
+    layer_channel = info_dict['channel']
     layer_output_shape = info_dict['output shape']
 
-    dnn.add_layer(in_layers, {'name': layer_name+'_0a', 'type': 'Unit3D', 'layer_1': 'Pad', 'padding_1': layer_pad[0], 'layer_2': 'Conv3D', 'kernel': [1, 1, 1], 'stride': [1, 1, 1], 'padding_2': 'None', 'normal, relu': 'TRUE', 'output shape': str([layer_param[0]] + layer_output_shape[1:])})
+    dnn.add_layer(in_layers, {'name': layer_name+'_0a', 'type': 'Unit3D', 'layer_1': 'Pad', 'padding_1': layer_pad[0], 'layer_2': 'Conv3D', 'kernel': [1, 1, 1], 'stride': [1, 1, 1], 'padding_2': 'None', 'normal, relu': 'TRUE', 'output shape': [layer_channel[0]] + layer_output_shape[1:]})
 
-    dnn.add_layer(in_layers, {'name': layer_name+'_1a', 'type': 'Unit3D', 'layer_1': 'Pad', 'padding_1': layer_pad[1], 'layer_2': 'Conv3D', 'kernel': [1, 1, 1], 'stride': [1, 1, 1], 'padding_2': 'None', 'normal, relu': 'TRUE', 'output shape': str([layer_param[1]] + layer_output_shape[1:])})
-    dnn.add_layer([layer_name+'_1a'], {'name': layer_name+'_1b', 'type': 'Unit3D', 'layer_1': 'Pad_1', 'padding': layer_pad[2], 'layer_2': 'Conv3D', 'kernel': [3, 3, 3], 'stride': [1, 1, 1], 'padding_2': 'None', 'normal, relu': 'TRUE', 'output shape': str([layer_param[2]] + layer_output_shape[1:])})
+    dnn.add_layer(in_layers, {'name': layer_name+'_1a', 'type': 'Unit3D', 'layer_1': 'Pad', 'padding_1': layer_pad[1], 'layer_2': 'Conv3D', 'kernel': [1, 1, 1], 'stride': [1, 1, 1], 'padding_2': 'None', 'normal, relu': 'TRUE', 'output shape': [layer_channel[1]] + layer_output_shape[1:]})
+    dnn.add_layer([layer_name+'_1a'], {'name': layer_name+'_1b', 'type': 'Unit3D', 'layer_1': 'Pad_1', 'padding': layer_pad[2], 'layer_2': 'Conv3D', 'kernel': [3, 3, 3], 'stride': [1, 1, 1], 'padding_2': 'None', 'normal, relu': 'TRUE', 'output shape': [layer_channel[2]] + layer_output_shape[1:]})
 
-    dnn.add_layer(in_layers, {'name': layer_name+'_2a', 'type': 'Unit3D', 'layer_1': 'Pad', 'padding_1': layer_pad[3], 'layer_2': 'Conv3D', 'kernel': [1, 1, 1], 'stride': [1, 1, 1], 'padding_2': 'None', 'normal, relu': 'TRUE', 'output shape': str([layer_param[3]] + layer_output_shape[1:])})
-    dnn.add_layer([layer_name+'_2a'], {'name': layer_name+'_2b', 'type': 'Unit3D', 'layer_1': 'Pad', 'padding_1': layer_pad[4], 'layer_2': 'Conv3D', 'kernel': [3, 3, 3], 'stride': [1, 1, 1], 'padding_2': 'None', 'normal, relu': 'TRUE', 'output shape': str([layer_param[4]] + layer_output_shape[1:])})
+    dnn.add_layer(in_layers, {'name': layer_name+'_2a', 'type': 'Unit3D', 'layer_1': 'Pad', 'padding_1': layer_pad[3], 'layer_2': 'Conv3D', 'kernel': [1, 1, 1], 'stride': [1, 1, 1], 'padding_2': 'None', 'normal, relu': 'TRUE', 'output shape': [layer_channel[3]] + layer_output_shape[1:]})
+    dnn.add_layer([layer_name+'_2a'], {'name': layer_name+'_2b', 'type': 'Unit3D', 'layer_1': 'Pad', 'padding_1': layer_pad[4], 'layer_2': 'Conv3D', 'kernel': [3, 3, 3], 'stride': [1, 1, 1], 'padding_2': 'None', 'normal, relu': 'TRUE', 'output shape': [layer_channel[4]] + layer_output_shape[1:]})
 
-    dnn.add_layer(in_layers, {'name': layer_name+'_3a', 'type': 'MaxPool3d', 'layer_1': 'Pad', 'padding_1': layer_pad[5], 'layer_2': 'Conv3D', 'kernel': [3, 3, 3], 'stride': [1, 1, 1], 'padding_2': 'None', 'output shape': str(sum(layer_output_shape))})
-    dnn.add_layer([layer_name+'_3a'], {'name': layer_name+'_3b', 'type': 'Unit3D', 'layer_1': 'Pad', 'padding_1': layer_pad[6], 'layer_2': 'Conv3D', 'kernel': [1, 1, 1], 'stride': [1, 1, 1], 'padding_2': 'None', 'normal, relu': 'TRUE', 'output shape': str([layer_param[5]] + layer_output_shape[1:])})
+    dnn.add_layer(in_layers, {'name': layer_name+'_3a', 'type': 'MaxPool3d', 'layer_1': 'Pad', 'padding_1': layer_pad[5], 'layer_2': 'Conv3D', 'kernel': [3, 3, 3], 'stride': [1, 1, 1], 'padding_2': 'None', 'output shape': [layer_channel[6]] + layer_output_shape[1:]})
+    dnn.add_layer([layer_name+'_3a'], {'name': layer_name+'_3b', 'type': 'Unit3D', 'layer_1': 'Pad', 'padding_1': layer_pad[6], 'layer_2': 'Conv3D', 'kernel': [1, 1, 1], 'stride': [1, 1, 1], 'padding_2': 'None', 'normal, relu': 'TRUE', 'output shape': [layer_channel[5]] + layer_output_shape[1:]})
 
-    dnn.add_layer([layer_name+'_0a', layer_name+'_1b', layer_name+'_2b', layer_name+'_3b'], {'name': layer_name, 'type': 'concat', 'output shape': str(layer_output_shape)})
+    dnn.add_layer([layer_name+'_0a', layer_name+'_1b', layer_name+'_2b', layer_name+'_3b'], {'name': layer_name, 'type': 'concat', 'output shape': layer_output_shape})
     pass
 
 def I3D(graphe_name):
@@ -39,13 +39,13 @@ def I3D(graphe_name):
     dnn.add_layer(['Conv3d_2b_1x1'], {'name': 'Conv3d_2c_3x3', 'type': 'Unit3D', 'layer_1': 'Pad', 'padding_1': [2, 2, 2], 'layer_2': 'Conv3D', 'kernel': [3, 3, 3], 'stride': [1, 1, 1], 'padding_2': 'None', 'normal, relu': 'TRUE', 'output shape': [192, 32, 56, 56]})
     dnn.add_layer(['Conv3d_2c_3x3'], {'name': 'MaxPool3d_3a_3x3', 'type': 'MaxPool3d', 'layer_1': 'Pad', 'padding_1': [0, 1, 1], 'layer_2': 'Conv3D', 'kernel': [1, 3, 3], 'stride': [1, 2, 2], 'padding_2': 'None', 'output shape': [192, 32, 28, 28]})
 
-    Add_InceptionModul3D(['MaxPool3d_3a_3x3'], {'name': 'Mixed_3b', 'param': [64,96,128,16,32,32], 'padding': [
+    Add_InceptionModul3D(['MaxPool3d_3a_3x3'], {'name': 'Mixed_3b', 'channel': [64,96,128,16,32,32,192], 'padding': [
             [0, 0, 0],
             [0, 0, 0], [2, 2, 2],
             [0, 0, 0], [2, 2, 2],
             [2, 2, 2], [0, 0, 0],
         ], 'output shape': [256, 32, 28, 28]})
-    Add_InceptionModul3D(['Mixed_3b'], {'name': 'Mixed_3c', 'param': [128,128,192,32,96,64], 'padding': [
+    Add_InceptionModul3D(['Mixed_3b'], {'name': 'Mixed_3c', 'channel': [128,128,192,32,96,64,256], 'padding': [
             [0, 0, 0],
             [0, 0, 0], [2, 2, 2],
             [0, 0, 0], [2, 2, 2],
@@ -54,31 +54,31 @@ def I3D(graphe_name):
 
     dnn.add_layer(['Mixed_3c'], {'name': 'MaxPool3d_4a_3x3', 'type': 'MaxPool3d', 'layer_1': 'Pad', 'padding_1': [1, 1, 1], 'layer_2': 'Conv3D', 'kernel': [3, 3, 3], 'stride': [2, 2, 2], 'padding_2': 'None', 'output shape': [480, 16, 14, 14]})
 
-    Add_InceptionModul3D(['MaxPool3d_4a_3x3'], {'name': 'Mixed_4b', 'param': [192,96,208,16,48,64], 'padding': [
+    Add_InceptionModul3D(['MaxPool3d_4a_3x3'], {'name': 'Mixed_4b', 'channel': [192,96,208,16,48,64,480], 'padding': [
             [0, 0, 0],
             [0, 0, 0], [2, 2, 2],
             [0, 0, 0], [2, 2, 2],
             [2, 2, 2], [0, 0, 0],
         ], 'output shape': [512, 16, 14, 14]})
-    Add_InceptionModul3D(['Mixed_4b'], {'name': 'Mixed_4c', 'param': [160,112,224,24,64,64], 'padding': [
+    Add_InceptionModul3D(['Mixed_4b'], {'name': 'Mixed_4c', 'channel': [160,112,224,24,64,64,512], 'padding': [
             [0, 0, 0],
             [0, 0, 0], [2, 2, 2],
             [0, 0, 0], [2, 2, 2],
             [2, 2, 2], [0, 0, 0],
         ], 'output shape': [512, 16, 14, 14]})
-    Add_InceptionModul3D(['Mixed_4c'], {'name': 'Mixed_4d', 'param': [128,128,256,24,64,64], 'padding': [
+    Add_InceptionModul3D(['Mixed_4c'], {'name': 'Mixed_4d', 'channel': [128,128,256,24,64,64,512], 'padding': [
             [0, 0, 0],
             [0, 0, 0], [2, 2, 2],
             [0, 0, 0], [2, 2, 2],
             [2, 2, 2], [0, 0, 0],
         ], 'output shape': [512, 16, 14, 14]})
-    Add_InceptionModul3D(['Mixed_4d'], {'name': 'Mixed_4e', 'param': [112,144,288,32,64,64], 'padding': [
+    Add_InceptionModul3D(['Mixed_4d'], {'name': 'Mixed_4e', 'channel': [112,144,288,32,64,64,512], 'padding': [
             [0, 0, 0],
             [0, 0, 0], [2, 2, 2],
             [0, 0, 0], [2, 2, 2],
             [2, 2, 2], [0, 0, 0],
         ], 'output shape': [528, 16, 14, 14]})
-    Add_InceptionModul3D(['Mixed_4e'], {'name': 'Mixed_4f', 'param': [256,160,320,32,128,128], 'padding': [
+    Add_InceptionModul3D(['Mixed_4e'], {'name': 'Mixed_4f', 'channel': [256,160,320,32,128,128,528], 'padding': [
             [0, 0, 0],
             [0, 0, 0], [2, 2, 2],
             [0, 0, 0], [2, 2, 2],
@@ -87,13 +87,13 @@ def I3D(graphe_name):
 
     dnn.add_layer(['Mixed_4f'], {'name': 'MaxPool3d_5a_2x2', 'type': 'MaxPool3d', 'layer_1': 'Pad', 'padding_1': [0, 0, 0], 'layer_2': 'Conv3D', 'kernel': [2, 2, 2], 'stride': [2, 2, 2], 'padding_2': 'None', 'output shape': [832, 8, 7, 7]})
 
-    Add_InceptionModul3D(['MaxPool3d_5a_2x2'], {'name': 'Mixed_5b', 'param': [256,160,320,32,128,128], 'padding': [
+    Add_InceptionModul3D(['MaxPool3d_5a_2x2'], {'name': 'Mixed_5b', 'channel': [256,160,320,32,128,128,832], 'padding': [
             [0, 0, 0],
             [0, 0, 0], [2, 2, 2],
             [0, 0, 0], [2, 2, 2],
             [2, 2, 2], [0, 0, 0],
         ], 'output shape': [832, 8, 7, 7]})
-    Add_InceptionModul3D(['Mixed_5b'], {'name': 'Mixed_5c', 'param': [384,192,384,48,128,128], 'padding': [
+    Add_InceptionModul3D(['Mixed_5b'], {'name': 'Mixed_5c', 'channel': [384,192,384,48,128,128,832], 'padding': [
             [0, 0, 0],
             [0, 0, 0], [2, 2, 2],
             [0, 0, 0], [2, 2, 2],

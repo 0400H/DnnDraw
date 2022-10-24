@@ -3,13 +3,13 @@
 from .engine import engine
 
 class graph(object):
-    def __init__(self, name, size, out_format='svg'):
+    def __init__(self, name, size='100,100', out_format='svg'):
+        self.name = name
         self.engine = engine()
-        self.graph_name = name
-        self.engine.add_graph(self.graph_name, True, size, 'lightblue2', 'filled', out_format)
+        self.engine.add_graph(self.name, True, size, 'lightblue2', 'filled', out_format)
         pass
 
-    def format_info_dict(self, info_dict):
+    def format(self, info_dict):
         key_info = r'{'
         value_info = r'{'
         for key in info_dict:
@@ -21,13 +21,13 @@ class graph(object):
     def add_layer(self, in_layers, info_dict):
         layer = {}
         layer['name'] = info_dict['name']
-        layer['label'] = self.format_info_dict(info_dict)
+        layer['label'] = self.format(info_dict)
         layer['shape'] = 'record'
-        return self.engine.graph_add_node(self.graph_name, in_layers, layer)
+        return self.engine.graph_add_node(self.name, in_layers, layer)
 
     def show(self):
-        return self.engine.graph_view(self.graph_name)
+        return self.engine.graph_view(self.name)
 
     def save(self, out_format):
-        return self.engine.graph_render(self.graph_name, out_format)
+        return self.engine.graph_render(self.name, out_format)
 pass

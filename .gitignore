@@ -1,10 +1,13 @@
 *.pyc
 *.log
 *.pdf
-*.gv
+*.gv*
 *.png
 *.svg
 temp*
 .idea
 .vscode
+build
+dist
+*.egg-info
 __pycache__

@@ -4,6 +4,7 @@
 *.gv*
 *.png
 *.svg
+*.json
 temp*
 .idea
 .vscode

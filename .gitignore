@@ -5,6 +5,7 @@
 *.png
 *.svg
 *.json
+*.pkl
 temp*
 .idea
 .vscode

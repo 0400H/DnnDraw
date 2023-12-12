@@ -4,6 +4,8 @@ __Project_Root__ = os.path.dirname(__Father_Root__ + '../')
 sys.path.append(__Project_Root__)
 import dnndraw
 
+# Facebook DLRM
+# https://arxiv.org/abs/1705.07750
 
 def Add_MLP_Arch(dnn, name, in_nodes, embedding_dims, out_activation='None'):
     layer_num = len(embedding_dims)
@@ -62,19 +64,21 @@ def Add_Interaction_Arch(dnn, name, in_nodes):
     dnn.merge_subgraph(dnn.name, name)
     return name+'_concat_top'
 
-dnn = dnndraw.graph(name="DLRM")
+if __name__ == '__main__':
+    dnn = dnndraw.graph(name="DLRM")
 
-# first layer
-dnn.add_node(in_nodes=[], node_info={'name': 'dense_input', 'type': 'Data', 'shape': ['batch', 'dense_feature_num=13']})
-dnn.add_node(in_nodes=[], node_info={'name': 'spare_input', 'type': 'Data', 'shape': ['spare_feature_num=26', 'batch']})
+    # first layer
+    dnn.add_node(in_nodes=[], node_info={'name': 'dense_input', 'type': 'Data', 'shape': ['batch', 'dense_feature_num=13']})
+    dnn.add_node(in_nodes=[], node_info={'name': 'spare_input', 'type': 'Data', 'shape': ['spare_feature_num=26', 'batch']})
 
-mlp_bot_out_name = Add_MLP_Arch(dnn, 'MLP_Bottom', ['dense_input'], [512, 256, 64, 16], 'Sigmoid')
+    mlp_bot_out_name = Add_MLP_Arch(dnn, 'MLP_Bottom', ['dense_input'], [512, 256, 64, 16], 'Sigmoid')
 
-emb_out_name = Add_Embedding_Arch(dnn, 'Embedding', ['spare_input'], ['c1', 'c2', 'c3', 'cx', 'c26'], embedding_dim='embedding_dim=16')
+    emb_out_name = Add_Embedding_Arch(dnn, 'Embedding', ['spare_input'], ['c1', 'c2', 'c3', 'cx', 'c26'], embedding_dim='embedding_dim=16')
 
-iteract_name = Add_Interaction_Arch(dnn, 'Interaction', [mlp_bot_out_name, *emb_out_name])
+    iteract_name = Add_Interaction_Arch(dnn, 'Interaction', [mlp_bot_out_name, *emb_out_name])
 
-mlp_top_out_name = Add_MLP_Arch(dnn, 'MLP_Top', [iteract_name], [512, 256, 1], 'Sigmoid')
+    mlp_top_out_name = Add_MLP_Arch(dnn, 'MLP_Top', [iteract_name], [512, 256, 1], 'Sigmoid')
 
-dnn.save(format='svg', file_path=dnn.name+'.pkl') # format: png, svg, pdf, ...
-dnn.show()
+    dnn.save(file_path=dnn.name+'.pkl')
+    dnn.show(format='png') # format: png, svg, pdf, ...
+

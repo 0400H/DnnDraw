@@ -122,7 +122,7 @@ if __name__ == '__main__':
     graph_name = 'GraphViz_Test'
     graph_file = graph_name + '.pkl'
     proxy = engine()
-    import os
+    # import os
     # if os.path.exists(graph_file):
     #     proxy.load(graph_file)
     # else:

@@ -30,12 +30,12 @@ dnn.show()
 
 ---
 
-#### [DLRM](https://arxiv.org/abs/1705.07750)
+#### [Facbook - DLRM](https://arxiv.org/abs/1906.00091)
 
 ![](https://raw.githubusercontent.com/AINoobs/repo_src/master/DnnDraw/DLRM.gv.svg)
 
 ---
 
-#### [I3D - Inflated 3D ConvNets](https://arxiv.org/abs/1705.07750)
+#### [DeepMind - I3D](https://arxiv.org/abs/1705.07750)
 
 ![](https://raw.githubusercontent.com/AINoobs/repo_src/master/DnnDraw/I3D_Topology.gv.svg)

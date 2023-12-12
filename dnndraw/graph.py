@@ -58,14 +58,14 @@ class graph(object):
             sub_graph_name = 'cluster_' + sub_graph_name
         return self.engine.merge_subgraph(root_graph_name, sub_graph_name)
 
-    def show(self):
+    def show(self, format='svg'):
+        self.engine.gv_render(self.name, format)
         self.engine.gv_view(self.name)
 
     def load(self, file_name):
         self.engine.load(file_name)
 
-    def save(self, format='svg', file_path=None):
+    def save(self, file_path=None):
         if not file_path:
             file_path = self.name + '.pkl'
         self.engine.save(file_path)
-        self.engine.gv_render(self.name, format)

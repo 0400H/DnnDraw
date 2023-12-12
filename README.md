@@ -2,6 +2,21 @@
 
 DnnDraw is an editor that visualizes neural networks.
 
+## How to install
+
+install from [pypi](https://pypi.org/project/dnndraw/):
+
+```shell
+pip install dnndraw
+```
+
+install from source:
+
+```shell
+python -u ./setup.py bdist_wheel
+pip install ./dist/*.whl
+```
+
 ### Examples
 
 

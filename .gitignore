@@ -9,6 +9,7 @@
 temp*
 .idea
 .vscode
+.pypirc
 build
 dist
 *.egg-info

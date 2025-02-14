@@ -1,7 +1,3 @@
-import os, sys
-__Father_Root__ = os.path.dirname(os.path.abspath(__file__)) + '/'
-__Project_Root__ = os.path.dirname(__Father_Root__ + '../')
-sys.path.append(__Project_Root__)
 import dnndraw
 
 

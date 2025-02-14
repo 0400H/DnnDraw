@@ -1,28 +1,7 @@
-## DnnDraw
-
-DnnDraw is a framework for visualizing neural networks via Python programming.
-
-## How to install
-
-Install from [pypi](https://pypi.org/project/dnndraw/):
-
-```shell
-pip install dnndraw
-```
-
-Install from source:
-
-```shell
-python -u ./setup.py bdist_wheel
-pip install ./dist/*.whl
-```
-
----
-
-### [Examples](Examples.md)
+## Examples
 
 
-#### Tinydnn
+### Tinydnn
 
 ```python
 import dnndraw
@@ -47,20 +26,12 @@ dnn.show()
 
 ---
 
-### Dev or Build Example
+### [Facbook - DLRM](https://arxiv.org/abs/1906.00091)
 
-- via `develop` mode
+![](https://raw.githubusercontent.com/AINoobs/repo_src/master/DnnDraw/DLRM.gv.svg)
 
-    ```
-    python3 ./setup.py develop
-    cd example
-    python ./tinydnn.py
-    ```
+---
 
-- via `PYTHONPATH`
+### [DeepMind - I3D](https://arxiv.org/abs/1705.07750)
 
-    ```
-    export PYTHONPATH=`pwd`
-    cd example
-    python ./tinydnn.py
-    ```
+![](https://raw.githubusercontent.com/AINoobs/repo_src/master/DnnDraw/I3D_Topology.gv.svg)

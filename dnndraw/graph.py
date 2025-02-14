@@ -10,14 +10,29 @@ class graph(object):
         self.add_graph(self.name, True)
         pass
 
-    def record_format(self, info_dict):
-        key_info = r'{'
-        value_info = r'{'
-        for key in info_dict:
-            key_info = key_info + key + '|'
-            value_info = value_info + str(info_dict[key]) + '|'
-        info = key_info[:-1] + r'} | ' + value_info[:-1] + r'}'
-        return info
+    def info_format(self, node_info):
+        if type(node_info) == dict:
+            key_info = "{{{}}}".format("|".join(node_info.keys()))
+            value_list = []
+            for key in node_info:
+                value_list.append(self.info_format(node_info[key]))
+            value_info = "{{{}}}".format("|".join(value_list))
+            fmt_str = key_info + "|" + value_info
+            return fmt_str
+        elif type(node_info) == tuple:
+            value_list = []
+            for value in node_info:
+                value_list.append(self.info_format(value))
+            fmt_str = r"({})".format(", ".join(value_list))
+            return fmt_str
+        elif type(node_info) == list:
+            value_list = []
+            for value in node_info:
+                value_list.append(self.info_format(value))
+            fmt_str = r"[{}]".format(", ".join(value_list))
+            return fmt_str
+        else:
+            return str(node_info)
 
     def add_graph(self, graph_name, directed=True, subgraph=False):
         if subgraph:
@@ -45,7 +60,7 @@ class graph(object):
                 'color' : color,
                 'style' : style,
             },
-            'label' : self.record_format(node_info),
+            'label' : self.info_format(node_info),
             'edges' : [name for name in in_nodes]
         }
         self.engine.add_node(graph_name, node_attr, add_edges=False)

@@ -96,15 +96,15 @@ class engine(object):
         self.gv_gs[root_graph_name].subgraph(self.gv_gs[sub_graph_name])
         return True
 
+    def dump(self, file_path):
+        print('dump Graph to file:', file_path)
+        with open(file_path, 'wb')as fp:
+            pickle.dump(self.gv_gs, fp)
+
     def load(self, file_path):
         print('load Graph from file:', file_path)
         with open(file_path, 'rb')as fp:
             self.gv_gs = pickle.load(fp)
-
-    def save(self, file_path):
-        print('save Graph to file:', file_path)
-        with open(file_path, 'wb')as fp:
-            pickle.dump(self.gv_gs, fp)
 
     def gv_source(self, graph_name):
         return self.gv_gs[graph_name].source
@@ -113,9 +113,9 @@ class engine(object):
         self.gv_gs[graph_name].view()
 
     def gv_render(self, graph_name, format='svg'):
-        print('save Graph {} to {} picture.'.format(graph_name, format))
+        print('export Graph {} to {} format.'.format(graph_name, format))
         self.gv_gs[graph_name].format = format
-        self.gv_gs[graph_name].render()
+        self.gv_gs[graph_name].render(view=False)
 
 
 if __name__ == '__main__':
@@ -140,5 +140,5 @@ if __name__ == '__main__':
         proxy.add_node(graph_name, {'name':'node6', 'label':'label6', 'edges': ['node3', 'node5']})
         proxy.save(graph_file)
     print(proxy.gv_source(graph_name))
-    proxy.gv_view(graph_name)
     proxy.gv_render(graph_name, format='png')
+    proxy.gv_view(graph_name)

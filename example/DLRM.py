@@ -5,7 +5,7 @@ import dnndraw
 
 def Add_MLP_Arch(dnn, name, in_nodes, embedding_dims, out_activation='None'):
     layer_num = len(embedding_dims)
-    name = dnn.add_graph(name, directed=True, subgraph=True)
+    graph_name = dnn.add_graph(name, directed=True, subgraph=True)
     dnn.add_node(in_nodes = in_nodes,
                  node_info = {
                     'name': '{}_{}'.format(name, 1),
@@ -13,7 +13,7 @@ def Add_MLP_Arch(dnn, name, in_nodes, embedding_dims, out_activation='None'):
                     'activation': 'Relu',
                     'out_shape': ['batch', embedding_dims[0]]
                 },
-                graph_name=name)
+                graph_name=graph_name)
     for i, embedding_dim in enumerate(embedding_dims[1:-1]):
         dnn.add_node(in_nodes = ['{}_{}'.format(name, i+1)],
                      node_info = {
@@ -22,7 +22,7 @@ def Add_MLP_Arch(dnn, name, in_nodes, embedding_dims, out_activation='None'):
                         'activation': 'Relu',
                         'out_shape': ['batch', embedding_dim]
                     },
-                    graph_name=name)
+                    graph_name=graph_name)
     dnn.add_node(in_nodes = ['{}_{}'.format(name, layer_num-1)],
                  node_info = {
                     'name': '{}_{}'.format(name, layer_num),
@@ -30,12 +30,12 @@ def Add_MLP_Arch(dnn, name, in_nodes, embedding_dims, out_activation='None'):
                     'activation': out_activation,
                     'out_shape': ['batch', embedding_dims[-1]]
                 },
-                graph_name=name)
-    dnn.merge_subgraph(dnn.name, name)
+                graph_name=graph_name)
+    dnn.merge_subgraph(dnn.name, graph_name)
     return '{}_{}'.format(name, layer_num)
 
 def Add_Embedding_Arch(dnn, name, in_nodes, embedding_sizes, embedding_dim):
-    name = dnn.add_graph(name, directed=True, subgraph=True)
+    graph_name = dnn.add_graph(name, directed=True, subgraph=True)
     out_name = []
     for i, embedding_size in enumerate(embedding_sizes):
         out_name.append('{}_{}'.format(name, embedding_size))
@@ -46,18 +46,18 @@ def Add_Embedding_Arch(dnn, name, in_nodes, embedding_sizes, embedding_dim):
                         'embedding_size': embedding_size,
                         'out_shape': ['batch', embedding_dim]
                     },
-                    graph_name=name)
-    dnn.merge_subgraph(dnn.name, name)
+                    graph_name=graph_name)
+    dnn.merge_subgraph(dnn.name, graph_name)
     return out_name
 
 def Add_Interaction_Arch(dnn, name, in_nodes):
-    name = dnn.add_graph(name, directed=True, subgraph=True)
-    dnn.add_node(in_nodes=in_nodes, node_info={'name': name+'_concat', 'type': 'Concat', 'out_shape': ['batch', 27, 16]}, graph_name=name)
-    dnn.add_node(in_nodes=[name+'_concat'], node_info={'name': name+'_tranpose', 'type': 'Tranpose', 'out_shape': ['batch', 16, 27]}, graph_name=name)
-    dnn.add_node(in_nodes=[name+'_concat', name+'_tranpose'], node_info={'name': name+'_matmul', 'type': 'Matmul', 'out_shape': ['batch', 27, 27]}, graph_name=name)
-    dnn.add_node(in_nodes=[name+'_matmul'], node_info={'name': name+'_mask', 'type': 'Mask', 'out_shape': ['batch', '27*26/2=351']}, graph_name=name)
-    dnn.add_node(in_nodes=[in_nodes[0], name+'_mask'], node_info={'name': name+'_concat_top', 'type': 'Concat', 'out_shape': ['batch', 367]}, graph_name=name)
-    dnn.merge_subgraph(dnn.name, name)
+    graph_name = dnn.add_graph(name, directed=True, subgraph=True)
+    dnn.add_node(in_nodes=in_nodes, node_info={'name': name+'_concat', 'type': 'Concat', 'out_shape': ['batch', 27, 16]}, graph_name=graph_name)
+    dnn.add_node(in_nodes=[name+'_concat'], node_info={'name': name+'_tranpose', 'type': 'Tranpose', 'out_shape': ['batch', 16, 27]}, graph_name=graph_name)
+    dnn.add_node(in_nodes=[name+'_concat', name+'_tranpose'], node_info={'name': name+'_matmul', 'type': 'Matmul', 'out_shape': ['batch', 27, 27]}, graph_name=graph_name)
+    dnn.add_node(in_nodes=[name+'_matmul'], node_info={'name': name+'_mask', 'type': 'Mask', 'out_shape': ['batch', '27*26/2=351']}, graph_name=graph_name)
+    dnn.add_node(in_nodes=[in_nodes[0], name+'_mask'], node_info={'name': name+'_concat_top', 'type': 'Concat', 'out_shape': ['batch', 367]}, graph_name=graph_name)
+    dnn.merge_subgraph(dnn.name, graph_name)
     return name+'_concat_top'
 
 if __name__ == '__main__':
@@ -75,6 +75,6 @@ if __name__ == '__main__':
 
     mlp_top_out_name = Add_MLP_Arch(dnn, 'MLP_Top', [iteract_name], [512, 256, 1], 'Sigmoid')
 
-    dnn.save(file_path=dnn.name+'.pkl')
-    dnn.show(format='png') # format: png, svg, pdf, ...
-
+    print(dnn.source())
+    dnn.export(format='svg') # format: png, svg, pdf, ...
+    # dnn.show()

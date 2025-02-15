@@ -12,5 +12,6 @@ dnn.add_node(in_nodes=['layer_1'], node_info={'name': 'layer_3', 'Type': 'Conv3D
 # end layer
 dnn.add_node(in_nodes=['layer_2', 'layer_3'], node_info={'name': 'layer_4', 'Type': 'Concat'})
 
-dnn.save(file_path=dnn.name+'.pkl')
-dnn.show(format='png') # format: png, svg, pdf, ...
+print(dnn.source())
+dnn.export(format='png') # format: png, svg, pdf, ...
+# dnn.show()

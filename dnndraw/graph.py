@@ -10,25 +10,25 @@ class graph(object):
         self.add_graph(self.name, True)
         pass
 
-    def info_format(self, node_info):
+    def format_info(self, node_info):
         if type(node_info) == dict:
             key_info = "{{{}}}".format("|".join(node_info.keys()))
             value_list = []
             for key in node_info:
-                value_list.append(self.info_format(node_info[key]))
+                value_list.append(self.format_info(node_info[key]))
             value_info = "{{{}}}".format("|".join(value_list))
             fmt_str = key_info + "|" + value_info
             return fmt_str
         elif type(node_info) == tuple:
             value_list = []
             for value in node_info:
-                value_list.append(self.info_format(value))
+                value_list.append(self.format_info(value))
             fmt_str = r"({})".format(", ".join(value_list))
             return fmt_str
         elif type(node_info) == list:
             value_list = []
             for value in node_info:
-                value_list.append(self.info_format(value))
+                value_list.append(self.format_info(value))
             fmt_str = r"[{}]".format(", ".join(value_list))
             return fmt_str
         else:
@@ -40,6 +40,7 @@ class graph(object):
         graph_def = {
             'name' : graph_name,
             'directed' : directed,
+            'label': '',
         }
         self.engine.add_graph(graph_def)
         return graph_name
@@ -60,7 +61,7 @@ class graph(object):
                 'color' : color,
                 'style' : style,
             },
-            'label' : self.info_format(node_info),
+            'label' : self.format_info(node_info),
             'edges' : [name for name in in_nodes]
         }
         self.engine.add_node(graph_name, node_attr, add_edges=False)
@@ -73,14 +74,19 @@ class graph(object):
             sub_graph_name = 'cluster_' + sub_graph_name
         return self.engine.merge_subgraph(root_graph_name, sub_graph_name)
 
-    def show(self, format='svg'):
+    def source(self):
+        return self.engine.gv_source(self.name)
+
+    def export(self, format='svg'):
         self.engine.gv_render(self.name, format)
+
+    def show(self):
         self.engine.gv_view(self.name)
+
+    def dump(self, file_path=None):
+        if not file_path:
+            file_path = self.name + '.pkl'
+        self.engine.dump(file_path)
 
     def load(self, file_name):
         self.engine.load(file_name)
-
-    def save(self, file_path=None):
-        if not file_path:
-            file_path = self.name + '.pkl'
-        self.engine.save(file_path)

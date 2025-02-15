@@ -104,5 +104,6 @@ def I3D(graph_name):
 
 if __name__ == '__main__':
     dnn = I3D('I3D_Topology')
-    dnn.save(file_path=dnn.name+'.pkl')
-    dnn.show(format='png') # format: png, svg, pdf, ...
+    print(dnn.source())
+    dnn.export(format='svg') # format: png, svg, pdf, ...
+    # dnn.show()

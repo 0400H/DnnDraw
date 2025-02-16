@@ -61,7 +61,7 @@ def Add_LSTM_Cell(dnn, name, node_in, node_h, node_c):
         node_info={
             'name': cell_update,
             'type': 'cell_update ct',
-            'formula': 'tanh(Matmul(W_ic,Xt)+Matmul(W_hc,H[t-1])+Bc)',
+            'formula': 'tanh(Matmul(W_ic,It)+Matmul(W_hc,H[t-1])+Bc)',
             'Shape W_io': '[hidden_size, input_size]',
             'Shape W_ho': '[hidden_size, Proj_size]',
             'Shape out': ['batch', 'hidden_size']
@@ -76,7 +76,7 @@ def Add_LSTM_Cell(dnn, name, node_in, node_h, node_c):
         node_info={
             'name': cell_state,
             'type': 'cell_state Ct',
-            'formula': 'EleMul(Ft,C[t-1])+EleMul(It,ct)',
+            'formula': 'EleWiseMul(Ft,C[t-1])+EleWiseMul(It,ct)',
             'Shape out': ['batch', 'hidden_size']
         },
         graph_name=sub_graph_name1,
@@ -88,8 +88,10 @@ def Add_LSTM_Cell(dnn, name, node_in, node_h, node_c):
         node_info={
             'name': hidden_state,
             'type': 'hidden_state Ht',
-            'formula': 'EleMul(Ot, tanh(Ct))',
-            'Shape out': ['batch', 'hidden_size']
+            'formula': 'W_hr*EleWiseMul(Ot, tanh(Ct))',
+            'Shape W_hr': '[hidden_size, Proj_size]',
+            'Shape out': ['batch', 'Proj_size'],
+            'Note': 'W_hr only used for Proj_size!=hidden_size'
         },
         graph_name=sub_graph_name1,
     )
@@ -99,6 +101,7 @@ def Add_LSTM_Cell(dnn, name, node_in, node_h, node_c):
     dnn.merge_subgraph(dnn.name, graph_name)
     return hidden_state, cell_state
 
+# https://arxiv.org/abs/1402.1128
 # https://pytorch.org/docs/stable/generated/torch.nn.LSTM.html#lstm
 # https://d2l.ai/chapter_recurrent-modern/lstm.html
 def LSTM(name, seq_len=1, num_layers=1):

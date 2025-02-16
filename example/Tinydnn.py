@@ -1,6 +1,6 @@
 import dnndraw
 
-dnn = dnndraw.graph(name="tinydnn")
+dnn = dnndraw.graph(name="tinydnn", layout="TB")
 
 # first layer
 dnn.add_node(in_nodes=[], node_info={'name': 'layer_1', 'Type': 'Conv3D', 'kernel': [1, 1, 1], 'stride': [1, 1, 1], 'padding': 'None', 'normal, relu': 'True'})

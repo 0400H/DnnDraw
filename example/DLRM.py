@@ -61,7 +61,7 @@ def Add_Interaction_Arch(dnn, name, in_nodes):
     return name+'_concat_top'
 
 if __name__ == '__main__':
-    dnn = dnndraw.graph(name="DLRM")
+    dnn = dnndraw.graph(name="DLRM", layout="BT")
 
     # first layer
     dnn.add_node(in_nodes=[], node_info={'name': 'dense_input', 'type': 'Data', 'shape': ['batch', 'dense_feature_num=13']})

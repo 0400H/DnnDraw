@@ -26,7 +26,7 @@ def Add_InceptionModul3D(in_nodes, node_info):
 
 def I3D(graph_name):
     global dnn
-    dnn = dnndraw.graph(graph_name)
+    dnn = dnndraw.graph(graph_name, layout="TB")
 
     dnn.add_node([], {'name': 'input', 'input shape': [3, 64, 224, 224], 'note': 'channel, depth, height, width'})
     dnn.add_node(['input'], {'name': 'Conv3d_1a_7x7', 'type': 'Unit3D', 'layer_1': 'Pad', 'padding_1': [5, 5, 5], 'layer_2': 'Conv3D', 'kernel': [7, 7, 7], 'stride': [2, 2, 2], 'normal, relu': 'True', 'padding_2': 'None', 'output shape': [64, 32, 112, 112]})

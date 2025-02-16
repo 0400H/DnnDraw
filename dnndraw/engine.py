@@ -8,39 +8,41 @@ from copy import deepcopy
 
 # https://github.com/xflr6/graphviz
 class engine(object):
-    def __init__(self):
+    def __init__(self, rankdir='TB'):
         self.gv_gs = dict()
-        self._edge_def = {
-            'src' : '',
-            'dst' : '',
-            'label' : '',
-            'attrs' : '',
+        self.edge_def = {
+            'src': '',
+            'dst': '',
+            'label': '',
+            'constraint': 'true',
+            'attrs': '',
         }
-        self._node_def = {
-            'name' : '',
-            'label' : '',
-            'attr' : {
-                'shape' : 'record',
-                'fontsize' : '8',
-                'color' : 'lightblue2',
-                'style' : 'filled',
-            },
-            'edges' : {},
+        self.node_def = {
+            'name': '',
+            'label': '',
         }
-        self._graph_def = {
-            'name' : '',
-            'directed' : True,
-            'attr' : {
-                'engine' : 'dot',
-                'rankdir' : 'BT',
-                'size' : '100,100'
+        self.graph_def = {
+            'name': '',
+            'directed': True,
+            'attr': {
+                'engine': 'dot', # neato
+                'rankdir': rankdir,    # TB, BT, LR, RL https://graphviz.org/docs/attrs/rankdir/
+                'rank': 'same',    # https://graphviz.org/docs/attrs/rank/
+                'style': 'invis',
+                # 'size': '100,100',
+                'ordering': 'out',
             },
-            'node_attr' : self._node_def['attr'],
-            'nodes' : {},
+            'node_attr': {
+                'shape': 'box', # https://graphviz.org/doc/info/shapes.html
+                'fontsize': '8',
+                'color': 'lightblue2',
+                'style': 'filled',
+                'fontname': 'Courier'
+            },
         }
 
-    def get_def_attr(self, attr_type):
-        path = '_' + attr_type +'_def'
+    def get_def(self, attr_type):
+        path = attr_type +'_def'
         attr = getattr(self, path)
         return deepcopy(attr)
 
@@ -56,38 +58,36 @@ class engine(object):
             return obj
 
     def parse_def_obj(self, attr_type, attr):
-        obj_def = self.get_def_attr(attr_type)
+        obj_def = self.get_def(attr_type)
         return self.update_dict_attr(obj_def, attr)
 
-    def add_graph(self, graph_attr):
-        graph_name = graph_attr['name']
-        graph_def = self.parse_def_obj('graph', graph_attr)
+    def add_graph(self, graph_def):
+        graph_name = graph_def["name"]
         if graph_def['directed'] == False:
             print('Add Graph {}'.format(graph_name))
             self.gv_gs[graph_name] = graphviz.Graph(graph_name)
         else:
             print('Add Digraph {}'.format(graph_name))
             self.gv_gs[graph_name] = graphviz.Digraph(graph_name)
-        self.gv_gs[graph_name].attr(**graph_def['attr'])
-        self.gv_gs[graph_name].node_attr.update(**graph_def['node_attr'])
+        if "attr" in graph_def:
+            self.gv_gs[graph_name].attr(**graph_def['attr'])
+        if "node_attr" in graph_def:
+            self.gv_gs[graph_name].node_attr.update(**graph_def['node_attr'])
         return graph_name
 
-    def add_node(self, graph_name, node_attr, add_edges=True):
-        node_name = node_attr['name']
-        node_def = self.parse_def_obj('node', node_attr)
-        self.gv_gs[graph_name].node(name=node_name, label=node_def['label'])
+    def add_node(self, graph_name, node_def):
+        node_name = node_def['name']
+        self.gv_gs[graph_name].node(**node_def)
         print('Graph {} add Node {}'.format(graph_name, node_name))
-        if add_edges:
-            for src in node_def['edges']:
-                self.add_edge(graph_name, {'src':src, 'dst':node_name})
         return node_name
 
     def add_edge(self, graph_name, edge_attr):
         edge_def = self.parse_def_obj('edge', edge_attr)
         self.gv_gs[graph_name].edge(tail_name=edge_def['src'],
-                                  head_name=edge_def['dst'],
-                                  label=edge_def['label'],
-                                  attrs=edge_def['attrs'])
+                                    head_name=edge_def['dst'],
+                                    label=edge_def['label'],
+                                    constraint=edge_def['constraint'],
+                                    attrs=edge_def['attrs'])
         print('Add Edge: {} -> {}'.format(edge_def['src'], edge_def['dst']))
         return True
 

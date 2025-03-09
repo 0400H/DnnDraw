@@ -4,6 +4,10 @@ DnnDraw is a framework for visualizing neural networks via Python programming.
 
 ## How to install
 
+```
+apt-get install graphviz graphviz-dev
+```
+
 Install from [pypi](https://pypi.org/project/dnndraw/):
 
 ```shell
@@ -54,6 +58,14 @@ dnn.show()
 
     ```
     python3 ./setup.py develop
+    cd example
+    python ./tinydnn.py
+    ```
+
+- via `editable` mode
+
+    ```
+    pip install -e .
     cd example
     python ./tinydnn.py
     ```

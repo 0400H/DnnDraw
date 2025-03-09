@@ -45,7 +45,7 @@ def Add_GRU_Cell(dnn, name, node_in, node_h):
         node_info={
             'name': candidate_state,
             'type': 'candidate_state Nt',
-            'formula': 'tanh(Matmul(W_in,It)+Bin+EleWiseMul(Rt,Matmul(W_hn,H[t-1])+Bhn))',
+            'formula': 'tanh(Matmul(W_in,It)+B_in+EleWiseMul(Rt,Matmul(W_hn,H[t-1])+B_hn))',
             'Shape W_in': '[hidden_size, input_size]',
             'Shape W_hn': '[hidden_size, hidden_size]',
             'Shape out': ['batch', 'hidden_size']

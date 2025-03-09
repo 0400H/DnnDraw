@@ -103,7 +103,7 @@ def I3D(graph_name):
 
 
 if __name__ == '__main__':
-    dnn = I3D('I3D_Topology')
+    dnn = I3D('I3D')
     print(dnn.source())
     dnn.export(format='svg') # format: png, svg, pdf, ...
     # dnn.show()

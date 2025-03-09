@@ -9,7 +9,7 @@ from copy import deepcopy
 # https://github.com/xflr6/graphviz
 class engine(object):
     def __init__(self, rankdir='TB'):
-        self.gv_gs = dict()
+        self.gs = dict()
         self.edge_def = {
             'src': '',
             'dst': '',
@@ -65,25 +65,25 @@ class engine(object):
         graph_name = graph_def["name"]
         if graph_def['directed'] == False:
             print('Add Graph {}'.format(graph_name))
-            self.gv_gs[graph_name] = graphviz.Graph(graph_name)
+            self.gs[graph_name] = graphviz.Graph(graph_name)
         else:
             print('Add Digraph {}'.format(graph_name))
-            self.gv_gs[graph_name] = graphviz.Digraph(graph_name)
+            self.gs[graph_name] = graphviz.Digraph(graph_name)
         if "attr" in graph_def:
-            self.gv_gs[graph_name].attr(**graph_def['attr'])
+            self.gs[graph_name].attr(**graph_def['attr'])
         if "node_attr" in graph_def:
-            self.gv_gs[graph_name].node_attr.update(**graph_def['node_attr'])
+            self.gs[graph_name].node_attr.update(**graph_def['node_attr'])
         return graph_name
 
     def add_node(self, graph_name, node_def):
         node_name = node_def['name']
-        self.gv_gs[graph_name].node(**node_def)
+        self.gs[graph_name].node(**node_def)
         print('Graph {} add Node {}'.format(graph_name, node_name))
         return node_name
 
     def add_edge(self, graph_name, edge_attr):
         edge_def = self.parse_def_obj('edge', edge_attr)
-        self.gv_gs[graph_name].edge(tail_name=edge_def['src'],
+        self.gs[graph_name].edge(tail_name=edge_def['src'],
                                     head_name=edge_def['dst'],
                                     label=edge_def['label'],
                                     constraint=edge_def['constraint'],
@@ -93,29 +93,29 @@ class engine(object):
 
     def merge_subgraph(self, root_graph_name, sub_graph_name):
         print('Graph {} add subgraph {}'.format(root_graph_name, sub_graph_name))
-        self.gv_gs[root_graph_name].subgraph(self.gv_gs[sub_graph_name])
+        self.gs[root_graph_name].subgraph(self.gs[sub_graph_name])
         return True
 
     def dump(self, file_path):
         print('dump Graph to file:', file_path)
         with open(file_path, 'wb')as fp:
-            pickle.dump(self.gv_gs, fp)
+            pickle.dump(self.gs, fp)
 
     def load(self, file_path):
         print('load Graph from file:', file_path)
         with open(file_path, 'rb')as fp:
-            self.gv_gs = pickle.load(fp)
+            self.gs = pickle.load(fp)
 
-    def gv_source(self, graph_name):
-        return self.gv_gs[graph_name].source
+    def source(self, graph_name):
+        return self.gs[graph_name].source
 
-    def gv_view(self, graph_name):
-        self.gv_gs[graph_name].view()
+    def view(self, graph_name):
+        self.gs[graph_name].view()
 
-    def gv_render(self, graph_name, format='svg'):
+    def render(self, graph_name, format='svg'):
         print('export Graph {} to {} format.'.format(graph_name, format))
-        self.gv_gs[graph_name].format = format
-        self.gv_gs[graph_name].render(view=False)
+        self.gs[graph_name].format = format
+        self.gs[graph_name].render(view=False)
 
 
 if __name__ == '__main__':
@@ -139,6 +139,6 @@ if __name__ == '__main__':
         proxy.add_edge(graph_name, {'src':'node3', 'dst':'node4'})
         proxy.add_node(graph_name, {'name':'node6', 'label':'label6', 'edges': ['node3', 'node5']})
         proxy.save(graph_file)
-    print(proxy.gv_source(graph_name))
-    proxy.gv_render(graph_name, format='png')
-    proxy.gv_view(graph_name)
+    print(proxy.source(graph_name))
+    proxy.render(graph_name, format='png')
+    proxy.view(graph_name)

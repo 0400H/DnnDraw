@@ -2,8 +2,6 @@ import dnndraw
 
 def Add_LSTM_Cell(dnn, name, node_in, node_h, node_c):
     """Add a LSTM cell to the graph"""
-    graph_name = dnn.add_graph(name, directed=True, subgraph=True)
-
     # Gates
     forget_gate = f"{name}_Ft"
     input_gate = f"{name}_It"
@@ -12,19 +10,17 @@ def Add_LSTM_Cell(dnn, name, node_in, node_h, node_c):
     cell_state = f"{name}_Ct"
     hidden_state = f"{name}_Ht"
 
-    sub_graph_name0 = dnn.add_graph(graph_name+'_0', directed=True, subgraph=True, graph_attr={'style':'invis'})
     # Add forget gate
     dnn.add_node(
         in_nodes=[node_in, node_h],
         node_info={
             'name': forget_gate,
-            'type': 'forget_gate Ft',
+            'gate': 'forget_gate Ft',
             'formula': 'Matmul(W_if,It)+Matmul(W_hf,H[t-1])+Bf',
-            'Shape W_if': '[hidden_size, input_size]',
-            'Shape W_hf': '[hidden_size, Proj_size]',
-            'Shape out': ['batch', 'hidden_size']
-        },
-        graph_name=sub_graph_name0,
+            'shape W_if': '[hidden_size, input_size]',
+            'shape W_hf': '[hidden_size, Proj_size]',
+            'shape out': ['batch', 'hidden_size']
+        }
     )
 
     # Add input gate
@@ -32,13 +28,12 @@ def Add_LSTM_Cell(dnn, name, node_in, node_h, node_c):
         in_nodes=[node_in, node_h],
         node_info={
             'name': input_gate,
-            'type': 'input_gate It',
+            'gate': 'input_gate It',
             'formula': 'Matmul(W_ii,It)+Matmul(W_hi,H[t-1])+Bi',
-            'Shape W_ii': '[hidden_size, input_size]',
-            'Shape W_hi': '[hidden_size, Proj_size]',
-            'Shape out': ['batch', 'hidden_size']
-        },
-        graph_name=sub_graph_name0,
+            'shape W_ii': '[hidden_size, input_size]',
+            'shape W_hi': '[hidden_size, Proj_size]',
+            'shape out': ['batch', 'hidden_size']
+        }
     )
 
     # Add output gate
@@ -46,13 +41,12 @@ def Add_LSTM_Cell(dnn, name, node_in, node_h, node_c):
         in_nodes=[node_in, node_h],
         node_info={
             'name': output_gate,
-            'type': 'output_gate Ot',
+            'gate': 'output_gate Ot',
             'formula': 'Matmul(W_io,It)+Matmul(W_ho,H[t-1])+Bo',
-            'Shape W_io': '[hidden_size, input_size]',
-            'Shape W_ho': '[hidden_size, Proj_size]',
-            'Shape out': ['batch', 'hidden_size']
-        },
-        graph_name=sub_graph_name0,
+            'shape W_io': '[hidden_size, input_size]',
+            'shape W_ho': '[hidden_size, Proj_size]',
+            'shape out': ['batch', 'hidden_size']
+        }
     )
 
     # Add cell update
@@ -62,14 +56,12 @@ def Add_LSTM_Cell(dnn, name, node_in, node_h, node_c):
             'name': cell_update,
             'type': 'cell_update ct',
             'formula': 'tanh(Matmul(W_ic,It)+Matmul(W_hc,H[t-1])+Bc)',
-            'Shape W_io': '[hidden_size, input_size]',
-            'Shape W_ho': '[hidden_size, Proj_size]',
-            'Shape out': ['batch', 'hidden_size']
-        },
-        graph_name=sub_graph_name0,
+            'shape W_io': '[hidden_size, input_size]',
+            'shape W_ho': '[hidden_size, Proj_size]',
+            'shape out': ['batch', 'hidden_size']
+        }
     )
 
-    sub_graph_name1 = dnn.add_graph(graph_name+'_1', directed=True, subgraph=True, graph_attr={'style':'invis'})
     # Add cell state
     dnn.add_node(
         in_nodes=[node_c, forget_gate, input_gate, cell_update],
@@ -77,9 +69,8 @@ def Add_LSTM_Cell(dnn, name, node_in, node_h, node_c):
             'name': cell_state,
             'type': 'cell_state Ct',
             'formula': 'EleWiseMul(Ft,C[t-1])+EleWiseMul(It,ct)',
-            'Shape out': ['batch', 'hidden_size']
-        },
-        graph_name=sub_graph_name1,
+            'shape out': ['batch', 'hidden_size']
+        }
     )
 
     # Add hidden state
@@ -89,16 +80,11 @@ def Add_LSTM_Cell(dnn, name, node_in, node_h, node_c):
             'name': hidden_state,
             'type': 'hidden_state Ht',
             'formula': 'W_hr*EleWiseMul(Ot, tanh(Ct))',
-            'Shape W_hr': '[hidden_size, Proj_size]',
-            'Shape out': ['batch', 'Proj_size'],
-            'Note': 'W_hr only used for Proj_size!=hidden_size'
-        },
-        graph_name=sub_graph_name1,
+            'shape W_hr': '[hidden_size, Proj_size]',
+            'shape out': ['batch', 'Proj_size'],
+            'note': 'W_hr only used for Proj_size!=hidden_size'
+        }
     )
-
-    dnn.merge_subgraph(graph_name, sub_graph_name0)
-    dnn.merge_subgraph(graph_name, sub_graph_name1)
-    dnn.merge_subgraph(dnn.name, graph_name)
     return hidden_state, cell_state
 
 # https://arxiv.org/abs/1402.1128
@@ -120,7 +106,8 @@ def LSTM(name, seq_len=1, num_layers=1):
                 'name': f'in_t{i}',
                 'type': 'Input_Data',
                 'shape': ['batch', 'input_size']
-            }
+            },
+            node_attr=dnn.node_colors[0]
         )
         it_cache[i] = it
     # Add initial states
@@ -131,7 +118,8 @@ def LSTM(name, seq_len=1, num_layers=1):
                 'name': f'h_l{i}',
                 'type': 'Initial_Hidden',
                 'shape': ['batch', 'proj_size']
-            }
+            },
+            node_attr=dnn.node_colors[1]
         )
         ct = dnn.add_node(
             in_nodes=[],
@@ -139,7 +127,8 @@ def LSTM(name, seq_len=1, num_layers=1):
                 'name': f'c_l{i}',
                 'type': 'Initial_Cell',
                 'shape': ['batch', 'hidden_size']
-            }
+            },
+            node_attr=dnn.node_colors[2]
         )
         ht_cache[i] = ht
         ct_cache[i] = ct

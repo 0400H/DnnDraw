@@ -1,25 +1,40 @@
 # -*- coding: UTF-8 -*-
 
-from .engine import engine
-
+from .engine import graphviz_engine
+import random
 
 class graph(object):
-    def __init__(self, name, layout='TB', node_attr="def"):
+    def __init__(self, name, layout='TB', node_attr={}, label_align=True):
         self.name = name
-        self.engine = engine(layout)
-        self.add_graph(self.name, directed=True, subgraph=False, graph_attr={'rankdir': layout}, node_attr='def')
-        self.kv_pair = False if layout == 'TB' or layout == 'BT' else True
-        pass
+        self.engine = graphviz_engine()
+        self.engine.create_root_graph(
+            name, directed=True,
+            attr=self.engine.update_attr_dict(
+                    self.engine.graph_attr, {'rankdir': layout})
+        )
+        self.node_attr = node_attr
+        self.node_colors = [
+            {"fillcolor":"#E5F6FF", "color": "#73A6FF"},
+            {"fillcolor":"#FFF6CC", "color": "#FFBC52"},
+            {"fillcolor":"#FFEBEB", "color": "#E68994"},
+            {"fillcolor":"#D5F5E3", "color": "#73C6B6"},
+            {"fillcolor":"#F2E9FF", "color": "#B39DDB"},
+        ]
+        self.label_align = label_align
 
     def fmt_to_polygon_label(self, node_info):
-        """Format node information into a label string compatible with Mermaid"""
         if type(node_info) == dict:
             label_parts = []
-            label_str = "<\n<TABLE BORDER=\"0\" CELLBORDER=\"1\" CELLSPACING=\"0\">\n{}\n</TABLE>\n>"
+            if self.label_align:
+                label_str = "<\n<TABLE BORDER=\"0\" CELLBORDER=\"1\" CELLSPACING=\"0\">\n{}\n</TABLE>\n>"
+            else:
+                label_str = "{}"
             for k, v in node_info.items():
-                if k not in ['name', 'edges']:  # Skip specific keys that aren't part of the label
-                    formatted_value = self.fmt_to_polygon_label(v)
+                formatted_value = self.fmt_to_polygon_label(v)
+                if self.label_align:
                     label_parts.append(f"<TR><TD ALIGN=\"LEFT\">{k}: {formatted_value}</TD></TR>")
+                else:
+                    label_parts.append(f"{k}: {formatted_value}")
             return label_str.format("\n".join(label_parts))
         elif type(node_info) == tuple or type(node_info) == list:
             value_list = []
@@ -33,76 +48,45 @@ class graph(object):
         else:
             return str(node_info)
 
-    def add_graph(self, graph_name, directed=True, subgraph=False, graph_attr={}, node_attr={}):
-        if subgraph:
-            graph_name = 'cluster_' + graph_name
-        graph_def = {
-            'name': graph_name,
-            'directed': directed,
-        }
-        if graph_attr != {}:
-            if graph_attr == "def":
-                graph_def["attr"] = self.engine.get_def("graph")["attr"]
-            else:
-                graph_def["attr"] = graph_attr
-        if node_attr != {}:
-            if node_attr == "def":
-                graph_def["node_attr"] = self.engine.get_def("graph")["node_attr"]
-            else:
-                graph_def["node_attr"] = node_attr
-        self.engine.add_graph(graph_def)
-        return graph_name
+    def create_graph(self, name, directed=True, has_border=False, attr=None):
+        return self.engine.create_sub_graph(name, directed, has_border, attr)
 
-    def add_node(self, in_nodes, node_info, graph_name=None):
+    def merge_graph(self, sub_graph, root_graph=None):
+        if not root_graph:
+            root_graph = self.engine.graph
+        return self.engine.merge_graph(root_graph, sub_graph)
+
+    def add_node(self, in_nodes, node_info, node_attr=None, graph=None, rand_color=False):
         '''
-        in_nodes: ['node_name_1', 'node_name_2', ...] or {src: label, ...}
-        node_info: {'name':'node_name', 'label':'node_info'}
+        in_nodes: ['node_name_1', 'node_name_2', ...] or {in_node1: label1, ...}
+        node_info: {'name':'node_name', 'label':'node_info', 'attr': attr}
         '''
-        if graph_name == None:
-            graph_name = self.name
+        if graph == None:
+            graph = self.engine.graph
 
-        # Format the label for Mermaid
-        formatted_label = node_info.get('label', '')
-        if not formatted_label:
-            formatted_label = self.fmt_to_polygon_label(node_info)
-
-        node_def = {
-            'name': node_info['name'],
-            'label': formatted_label,
-        }
-
-        self.engine.add_node(graph_name, node_def)
+        name = node_info['name']
+        label = self.fmt_to_polygon_label(node_info)
+        node_attr = node_attr if node_attr else self.node_attr
+        attr = self.engine.update_attr_dict(self.engine.node_attr, node_attr)
+        if rand_color:
+            attr = self.engine.update_attr_dict(self.engine.node_attr, random.choice(self.node_colors))
+        self.engine.graph_add_node(graph, name, label, attr)
 
         # Add edges from in_nodes to this node
         if in_nodes:
             if isinstance(in_nodes, list):
                 for src in in_nodes:
-                    edge_attr = {'src': src, 'dst': node_info['name']}
-                    self.engine.add_edge(self.name, edge_attr)
+                    self.engine.add_edge(src, name)
             elif isinstance(in_nodes, dict):
                 for src, label in in_nodes.items():
-                    edge_attr = {'src': src, 'dst': node_info['name'], 'label': label}
-                    self.engine.add_edge(self.name, edge_attr)
-        return node_info['name']
-
-    def merge_subgraph(self, root_graph_name, sub_graph_name):
-        if 'cluster_' not in sub_graph_name:
-            sub_graph_name = 'cluster_' + sub_graph_name
-        return self.engine.merge_subgraph(root_graph_name, sub_graph_name)
+                    self.engine.add_edge(src, name, label)
+        return name
 
     def source(self):
-        return self.engine.source(self.name)
+        return self.engine.source()
 
     def export(self, format='svg'):
-        self.engine.render(self.name, format)
+        self.engine.render(format)
 
     def show(self):
-        self.engine.view(self.name)
-
-    def dump(self, file_path=None):
-        if not file_path:
-            file_path = self.name + '.pkl'
-        self.engine.dump(file_path)
-
-    def load(self, file_name):
-        self.engine.load(file_name)
+        self.engine.view()

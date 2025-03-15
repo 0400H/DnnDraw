@@ -7,17 +7,17 @@ dnn.add_node(
     in_nodes=[],
     node_info={
         'name': 'input',
-        'Type': 'Data',
+        'operator': 'Data',
     })
 
 dnn.add_node(
     in_nodes={"input": "[batch, h, w, c]"},
     node_info={
         'name': 'layer_1',
-        'Type': 'Conv3D',
+        'operator': 'Conv3D',
         'kernel': [1, 1, 1],
         'stride': [1, 1, 1],
-        'padding': 'None',
+        'padding': 'none',
         'normal, relu': 'True'
     })
 
@@ -25,10 +25,10 @@ dnn.add_node(
     in_nodes=['layer_1'],
     node_info={
         'name': 'layer_2',
-        'Type': 'Conv3D',
+        'operator': 'Conv3D',
         'kernel': [3, 3, 3],
         'stride': [1, 1, 1],
-        'padding': 'None',
+        'padding': 'none',
         'normal, relu': 'True'
     })
 
@@ -36,10 +36,10 @@ dnn.add_node(
     in_nodes=['layer_1'],
     node_info={
         'name': 'layer_3',
-        'Type': 'Conv3D',
+        'operator': 'Conv3D',
         'kernel': [3, 3, 3],
         'stride': [1, 1, 1],
-        'padding': 'None',
+        'padding': 'none',
         'normal, relu': 'True'
     })
 
@@ -51,9 +51,9 @@ dnn.add_node(
     },
     node_info={
         'name': 'layer_4',
-        'Type': 'Concat'
+        'operator': 'Concat'
     })
 
 print(dnn.source())
-dnn.export(format='png') # format: png, svg, pdf, ...
+dnn.export(format='svg') # format: png, svg, pdf, ...
 # dnn.show()

@@ -13,7 +13,7 @@ def add_detailed_decoder(dnn, decoder_name, input_name, mask_name):
             'name': f'{decoder_name}_input_layernorm',
             'operator': 'LlamaRMSNorm',
             'eps': 'config.rms_norm_eps',
-            'shape': '[batch_size, seq_length, hidden_size]'
+            'shape': '[batch_size, cur_seq_len, hidden_size]'
         },
         node_attr=dnn.node_colors[0],
         graph=d
@@ -27,20 +27,21 @@ def add_detailed_decoder(dnn, decoder_name, input_name, mask_name):
         in_nodes=[f'{decoder_name}_input_layernorm', 'position_embeddings'],
         node_info={
             'name': f'{attn_name}_q_proj',
-            'operator': 'Linear',
             'pos_encode': 'rotary_pos',
-            'shape': '[batch_size, seq_length, hidden_size]',
+            'operator': 'Linear',
+            'shape': '[batch_size, num_attention_heads, cur_seq_len, head_dim]',
         },
         node_attr=dnn.node_colors[1],
         graph=attn
     )
 
     dnn.add_node(
-        in_nodes=[f'{decoder_name}_input_layernorm'],
+        in_nodes=[f'{decoder_name}_input_layernorm', 'position_embeddings'],
         node_info={
             'name': f'{attn_name}_k_proj',
+            'pos_encode': 'rotary_pos',
             'operator': 'Linear',
-            'shape': '[batch_size, seq_length, hidden_size]',
+            'shape': '[batch_size, num_key_value_heads, seq_len+t-1, head_dim]',
         },
         node_attr=dnn.node_colors[1],
         graph=attn
@@ -51,7 +52,7 @@ def add_detailed_decoder(dnn, decoder_name, input_name, mask_name):
         node_info={
             'name': f'{attn_name}_v_proj',
             'operator': 'Linear',
-            'shape': '[batch_size, seq_length, hidden_size]',
+            'shape': '[batch_size, num_key_value_heads, seq_len+t-1, head_dim]',
         },
         node_attr=dnn.node_colors[1],
         graph=attn
@@ -62,7 +63,7 @@ def add_detailed_decoder(dnn, decoder_name, input_name, mask_name):
         node_info={
             'name': f'{attn_name}_matmul1',
             'operator': 'Matmul',
-            'shape': '[batch_size, seq_length, seq_length]',
+            'shape': '[batch_size, num_key_value_heads, cur_seq_len, seq_len+t-1]',
         },
         node_attr=dnn.node_colors[1],
         graph=attn
@@ -71,15 +72,15 @@ def add_detailed_decoder(dnn, decoder_name, input_name, mask_name):
     dnn.add_node(
         in_nodes=[f'{attn_name}_matmul1', mask_name],
         node_info={
-            'name': f'{attn_name}_attn_mask',
-            'type': 'Mask',
+            'name': f'{attn_name}_masked_attn',
+            'type': 'Add',
         },
         node_attr=dnn.node_colors[1],
         graph=attn
     )
 
     dnn.add_node(
-        in_nodes=[f'{attn_name}_attn_mask'],
+        in_nodes=[f'{attn_name}_masked_attn'],
         node_info={
             'name': f'{attn_name}_softmax',
             'type': 'Softmax',
@@ -93,7 +94,7 @@ def add_detailed_decoder(dnn, decoder_name, input_name, mask_name):
         node_info={
             'name': f'{attn_name}_matmul2',
             'type': 'Matmul',
-            'shape': '[batch_size, seq_length, hidden_size]',
+            'shape': '[batch_size, cur_seq_len, num_key_value_heads, head_dim]',
         },
         node_attr=dnn.node_colors[1],
         graph=attn
@@ -104,7 +105,7 @@ def add_detailed_decoder(dnn, decoder_name, input_name, mask_name):
         node_info={
             'name': f'{attn_name}_o_proj',
             'operator': 'Linear',
-            'shape': '[batch_size, seq_length, hidden_size]',
+            'shape': '[batch_size, cur_seq_len, hidden_size]',
         },
         node_attr=dnn.node_colors[1],
         graph=attn
@@ -132,7 +133,6 @@ def add_detailed_decoder(dnn, decoder_name, input_name, mask_name):
             'operator': 'LlamaRMSNorm',
             'hidden_size': 'config.hidden_size',
             'eps': 'config.rms_norm_eps',
-            'shape': '[batch_size, seq_length, hidden_size]'
         },
         node_attr=dnn.node_colors[0],
         graph=d
@@ -148,7 +148,7 @@ def add_detailed_decoder(dnn, decoder_name, input_name, mask_name):
             'name': f'{mlp_name}_gate_proj',
             'operator': 'Linear',
             'act': 'silu',
-            'shape': '[batch_size, seq_length, intermediate_size]'
+            'shape': '[batch_size, cur_seq_len, intermediate_size]'
         },
         node_attr=dnn.node_colors[3],
         graph=mlp
@@ -159,7 +159,7 @@ def add_detailed_decoder(dnn, decoder_name, input_name, mask_name):
         node_info={
             'name': f'{mlp_name}_up_proj',
             'operator': 'Linear',
-            'shape': '[batch_size, seq_length, intermediate_size]'
+            'shape': '[batch_size, cur_seq_len, intermediate_size]'
         },
         node_attr=dnn.node_colors[3],
         graph=mlp
@@ -170,7 +170,7 @@ def add_detailed_decoder(dnn, decoder_name, input_name, mask_name):
         node_info={
             'name': f'{mlp_name}_dot',
             'operator': 'Dot',
-            'shape': '[batch_size, seq_length, intermediate_size]'
+            'shape': '[batch_size, cur_seq_len, intermediate_size]'
         },
         node_attr=dnn.node_colors[3],
         graph=mlp
@@ -181,7 +181,7 @@ def add_detailed_decoder(dnn, decoder_name, input_name, mask_name):
         node_info={
             'name': f'{mlp_name}_down_proj',
             'operator': 'Linear',
-            'shape': '[batch_size, seq_length, hidden_size]'
+            'shape': '[batch_size, cur_seq_len, hidden_size]'
         },
         node_attr=dnn.node_colors[3],
         graph=mlp
@@ -208,7 +208,7 @@ def add_detailed_decoder(dnn, decoder_name, input_name, mask_name):
 
 
 # https://github.com/huggingface/transformers/blob/v4.49.0/src/transformers/models/llama/modeling_llama.py#L308
-def add_decoder(dnn, decoder_name, input_node, mask_name):
+def add_decoder(dnn, decoder_name, input_node, pos_name, mask_name):
     # Create a subgraph for decoder layers
     cd, d = dnn.create_graph(decoder_name, directed=True, has_border=True)
 
@@ -223,7 +223,7 @@ def add_decoder(dnn, decoder_name, input_node, mask_name):
     )
 
     dnn.add_node(
-        in_nodes=[f'{decoder_name}_input_layernorm', mask_name],
+        in_nodes=[f'{decoder_name}_input_layernorm', pos_name, mask_name],
         node_info={
             'name': f'{decoder_name}_self_attn',
             'operator': 'LlamaAttention',
@@ -286,8 +286,8 @@ def LlamaForCausalLM(name='LlamaForCausalLM', label_align=False):
         in_nodes=[],
         node_info={
             'name': 'input_ids',
-            'operator': 'Data',
-            'shape': '[batch_size, seq_length]'
+            'shape': '[batch_size, cur_seq_len]',
+            'note': 'cur_seq_len = seq_len if t == 1 else 1'
         },
         rand_color=RAND_COLOR,
     )
@@ -296,8 +296,7 @@ def LlamaForCausalLM(name='LlamaForCausalLM', label_align=False):
         in_nodes=[],
         node_info={
             'name': 'position_ids',
-            'operator': 'Data (Optional)',
-            'shape': '[batch_size, seq_length]'
+            'shape': '[batch_size, cur_seq_len]'
         },
         rand_color=RAND_COLOR,
     )
@@ -310,7 +309,7 @@ def LlamaForCausalLM(name='LlamaForCausalLM', label_align=False):
             'operator': 'Embedding',
             'vocab_size': 'config.vocab_size',
             'embedding_dim': 'config.hidden_size',
-            'shape': '[batch_size, seq_length, hidden_size]'
+            'shape': '[batch_size, cur_seq_len, hidden_size]'
         },
         rand_color=RAND_COLOR,
     )
@@ -321,7 +320,7 @@ def LlamaForCausalLM(name='LlamaForCausalLM', label_align=False):
         node_info={
             'name': 'causal_mask',
             'type': 'update_causal_mask',
-            'shape': '[batch_size, seq_length, hidden_size]'
+            'shape': '[batch_size, seq_len+t, seq_len+t]'
         },
         rand_color=RAND_COLOR,
     )
@@ -332,16 +331,16 @@ def LlamaForCausalLM(name='LlamaForCausalLM', label_align=False):
         node_info={
             'name': 'position_embeddings',
             'type': 'LlamaRotaryEmbedding',
-            'shape': '[batch_size, seq_length, hidden_size]'
+            'shape': '[batch_size, cur_seq_len, hidden_size]'
         },
         rand_color=RAND_COLOR,
     )
 
     node_name = add_detailed_decoder(dnn, 'decoder_1', 'embed_tokens', 'causal_mask')
 
-    node_name = add_decoder(dnn, 'decoder_2', node_name, 'causal_mask')
+    node_name = add_decoder(dnn, 'decoder_2', node_name, 'position_embeddings', 'causal_mask')
 
-    node_name = add_decoder(dnn, 'decoder_3', node_name, 'causal_mask')
+    node_name = add_decoder(dnn, 'decoder_3', node_name, 'position_embeddings', 'causal_mask')
 
     # https://github.com/huggingface/transformers/blob/v4.49.0/src/transformers/models/llama/modeling_llama.py#L611
     dnn.add_node(
@@ -349,7 +348,7 @@ def LlamaForCausalLM(name='LlamaForCausalLM', label_align=False):
         node_info={
             'name': 'norm',
             'operator': 'LlamaRMSNorm',
-            'shape': '[batch_size, seq_length, hidden_size]'
+            'shape': '[batch_size, cur_seq_len, hidden_size]'
         },
         rand_color=RAND_COLOR,
     )
@@ -361,7 +360,7 @@ def LlamaForCausalLM(name='LlamaForCausalLM', label_align=False):
             'name': 'lm_head',
             'operator': 'Linear',
             'bias': 'False',
-            'shape': '[batch_size, seq_length, vocab_size]'
+            'shape': '[batch_size, cur_seq_len, vocab_size]'
         },
         rand_color=RAND_COLOR,
     )
